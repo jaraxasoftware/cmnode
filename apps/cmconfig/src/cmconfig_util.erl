@@ -1100,6 +1100,8 @@ compile_term(#{<<"without_keys">> := KeysSpec} = Spec, Index) ->
       spec => compile_term(KeysSpec, Index)};
 compile_term(#{<<"with_keys">> := KeysSpec}, Index) ->
     #{type => with_keys, spec => compile_term(KeysSpec, Index)};
+compile_term(#{<<"with_values">> := ValuesSpec}, Index) ->
+    #{type => with_values, spec => compile_term(ValuesSpec, Index)};
 compile_term(#{<<"entries">> := Spec}, Index) ->
     #{type => entries, spec => compile_term(Spec, Index)};
 compile_term(#{<<"view">> := View}, Index) ->

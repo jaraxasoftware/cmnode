@@ -90,6 +90,12 @@ decode_object_with_keys([K|Rem], In) ->
             decode_object_with_keys(Rem, In)
     end.
 
+decode_object_with_values(ValueSpec, Data, Config) when is_map(Data) ->
+    decode_list(ValueSpec, maps:values(Data), Config);
+
+decode_object_with_values(_, _, _)  ->
+    no_match.
+
 decode_term(In, In, _) ->
     {ok, In};
 
@@ -128,6 +134,18 @@ decode_term(#{ type := with_keys,
     end;
 
 decode_term(#{ type := with_keys }, _, _) ->  no_match;
+
+
+decode_term(#{ type := with_values,
+               spec := ValuesSpec}, Data, Config) when is_map(Data) ->
+
+    case cmencode:encode(ValuesSpec, Config) of 
+        {ok, ObjectSpec} ->
+            decode_object_with_values(ObjectSpec, Data, Config);
+        Other -> 
+            Other
+    end;
+decode_term(#{ type := with_values }, _, _) ->  no_match;
 
 decode_term(#{ type := data }, Data, _) when is_binary(Data) -> {ok, Data};
 decode_term(#{ type := data }, _, _) -> no_match;
