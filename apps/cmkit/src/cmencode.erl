@@ -1497,23 +1497,19 @@ encode(#{type := kube,
                         {ok, Server} ->
                             case encode(StateSpec, In, Config) of
                                 {ok, State} ->
-                                    Params =
-                                        #{name => Name,
-                                          namespace => Ns,
-                                          resource => Resource,
-                                          state => State,
-                                          server => Server},
-                                    case maps:get(props, Spec, undef) of
-                                        undef ->
+                                    case maybe_with_keys([replicas, props], Spec, In, Config, #{name => Name,
+                                                                                                namespace => Ns,
+                                                                                                resource => Resource,
+                                                                                                state => State,
+                                                                                                server => Server}) of
+
+                                        {ok, Params} ->
                                             cmkube:do(Params);
-                                        PropsSpec ->
-                                            case encode(PropsSpec, In, Config) of
-                                                {ok, Props} ->
-                                                    cmkube:do(Params#{props => Props});
-                                                Other ->
-                                                    Other
-                                            end
+
+                                        Other ->
+                                            Other
                                     end;
+
                                 Other ->
                                     Other
                             end;
@@ -1978,3 +1974,28 @@ encode_as(none, _, _) ->
     {ok, undef};
 encode_as(Spec, In, Config) ->
     encode(Spec, In, Config).
+
+
+maybe_with_keys([], _, _, _, Out) -> {ok, Out};
+maybe_with_keys([Key|Rest], Spec, In, Config, Out) ->
+    case maybe_with_key(Key, Spec, In, Config, Out) of 
+        {ok, Out2} ->
+            maybe_with_keys(Rest, Spec, In, Config, Out2);
+
+        Other ->
+            Other
+    end.
+
+maybe_with_key(Key, Spec, In, Config, Out) ->
+    case maps:get(Key, Spec, undef) of
+        undef ->
+            {ok, Out};
+        KeySpec ->
+            case encode(KeySpec, In, Config) of
+                {ok, KeyValue} ->
+                    {ok, Out#{ Key => KeyValue}};
+                Other ->
+                    Other
+            end
+    end.
+

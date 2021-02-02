@@ -796,6 +796,7 @@ run(#{type := expect,
     end;
 run(#{type := kube} = Spec, Settings, #{data := Data} = World) ->
     In = World#{settings => Settings},
+    cmkit:log({running, kube, Spec}),
     case cmencode:encode(Spec, In) of
         {ok, Res} ->
             Key = maps:get(as, Spec, latest),

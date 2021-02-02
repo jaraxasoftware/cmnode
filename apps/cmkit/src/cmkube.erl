@@ -557,7 +557,7 @@ opts(Host, Token) ->
     #{cfg => Cfg}.
 
 skip_ssl_verify(#{cfg := Cfg}) ->
-    #{cfg => maps:put(hackney_opts, [{ssl_options, [{ssl_verify, verify_none}]}], Cfg)}.
+    #{cfg => maps:put(hackney_opts, [{ssl_options, [{verify, verify_none}]}], Cfg)}.
 
 to_query_params(Map) ->
     cmkit:map_join(Map, <<"=">>, <<",">>).

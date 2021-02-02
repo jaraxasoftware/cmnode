@@ -2067,7 +2067,7 @@ compile_kube_spec(#{<<"statefulset">> := StatefulSetSpec,
                     <<"replicas">> := ReplicasSpec,
                     <<"server">> := ApiServerSpec}, Index) ->
 
-    #{ kind => statefulset, 
+    #{ resource => statefulset, 
        name => compile_term(StatefulSetSpec, Index),
        namespace => compile_term(NsSpec, Index),
        state => scaled,
