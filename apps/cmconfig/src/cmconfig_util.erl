@@ -2062,6 +2062,19 @@ maybe_compile_as(Spec, Index) when is_map(Spec) ->
             compile_as(AsSpec, Index)
     end.
 
+compile_kube_spec(#{<<"statefulset">> := StatefulSetSpec,
+                    <<"namespace">> := NsSpec,
+                    <<"replicas">> := ReplicasSpec,
+                    <<"server">> := ApiServerSpec}, Index) ->
+
+    #{ kind => statefulset, 
+       name => compile_term(StatefulSetSpec, Index),
+       namespace => compile_term(NsSpec, Index),
+       state => scaled,
+       replicas => compile_term(ReplicasSpec, Index),
+       server => compile_term(ApiServerSpec, Index)};
+
+
 compile_kube_spec(#{<<"kind">> := Kind,
                     <<"namespace">> := NsSpec,
                     <<"state">> := StateSpec,
