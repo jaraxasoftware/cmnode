@@ -309,6 +309,7 @@ lookup_step(Title, Backgrounds, ReusableSteps) when is_binary(Title) ->
         undef ->
             case maps:get(Title, ReusableSteps, undef) of
                 undef ->
+                    cmkit:warning({cmtest, unknown_step, Title}),
                     undef;
                 Step ->
                     {Title, Step}
@@ -796,7 +797,6 @@ run(#{type := expect,
     end;
 run(#{type := kube} = Spec, Settings, #{data := Data} = World) ->
     In = World#{settings => Settings},
-    cmkit:log({running, kube, Spec}),
     case cmencode:encode(Spec, In) of
         {ok, Res} ->
             Key = maps:get(as, Spec, latest),
