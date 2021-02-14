@@ -1457,6 +1457,8 @@ compile_term(#{<<"probe">> := Spec}, Index) ->
     #{type => probe, spec => compile_term(Spec, Index)};
 compile_term(#{<<"disconnect">> := Spec}, Index) ->
     #{type => disconnect, spec => compile_term(Spec, Index)};
+compile_term(#{<<"reconnect">> := Spec}, Index) ->
+    #{type => reconnect, spec => compile_term(Spec, Index)};
 compile_term(#{<<"send">> := #{<<"to">> := ConnSpec, <<"spec">> := Spec}}, Index) ->
     #{type => send,
       spec => #{to => compile_term(ConnSpec, Index), spec => compile_term(Spec, Index)}};

@@ -526,6 +526,27 @@ disconnect(Name, _, #{conns := Conns} = World) ->
             {ok, World}
     end.
 
+reconnect([], _, World) ->
+    {ok, World};
+reconnect([N | Rem], In, World) ->
+    case reconnect(N, In, World) of
+        {ok, World2} ->
+            reconnect(Rem, In, World2);
+        Other ->
+            Other
+    end;
+reconnect(Name, _, #{conns := Conns} = World) ->
+    case maps:get(Name, Conns, undef) of
+        undef ->
+            {error,
+             #{error => not_such_connection,
+               conns => maps:keys(Conns),
+               info => Name}};
+        #{class := websocket, pid := Pid} ->
+            cmwsc:reconnect(Pid),
+            {ok, World}
+    end.
+
 connection_with_protocol(#{protocol := #{spec := _}} = Spec, _) ->
     {ok, Spec};
 connection_with_protocol(#{protocol := ProtocolSpec} = Spec, In) ->
@@ -866,6 +887,19 @@ run(#{type := disconnect, spec := Spec}, Settings, World) ->
             disconnect(Name, In, World);
         {ok, Names} when is_list(Names) ->
             disconnect(Names, In, World);
+        Other ->
+            {error,
+             #{error => invalid_connection_id,
+               spec => Spec,
+               connection_id => Other}}
+    end;
+run(#{type := reconnect, spec := Spec}, Settings, World) ->
+    In = World#{settings => Settings},
+    case cmencode:encode(Spec, In) of
+        {ok, Name} when is_atom(Name) orelse is_binary(Name) ->
+            reconnect(Name, In, World);
+        {ok, Names} when is_list(Names) ->
+            reconnect(Names, In, World);
         Other ->
             {error,
              #{error => invalid_connection_id,

@@ -3,13 +3,16 @@
 -export([start_link/3]).
 -export([init/1, callback_mode/0, terminate/3]).
 -export([connecting/3, connected/3, upgrading/3, ready/3, disconnected/3]).
--export([send/2, stop/1]).
+-export([send/2, stop/1, reconnect/1]).
 
 stop(Pid) ->
     check_and_send(Pid, stop).
 
 send(Pid, Msg) ->
     check_and_send(Pid, {out, Msg}).
+
+reconnect(Pid) ->
+    check_and_send(Pid, reconnect).
 
 check_and_send(Pid, Msg) ->
     case erlang:is_process_alive(Pid) of
@@ -62,6 +65,14 @@ disconnected({call, _}, {out, Msg}, Data) ->
 disconnected(From, stop, Data) -> 
     handle_stop(From, Data);
 
+disconnected(From, reconnect, #{name := Name, 
+                                log :=Log, 
+                                timeout := Timeout}=Data) ->
+    Log({?MODULE, Name, disconnected, reconnect}),
+    Data2 = connect(Data),
+    {next_state, connecting, Data2, 
+     [{{timeout,connecting}, Timeout ,connecting}, ok(From)]};
+
 disconnected(Ev, Other, #{ log := Log,
                            name := Name }=Data) ->
     Log({cmwsc, Name, disconnected, ignored, Ev, Other}),
@@ -69,6 +80,11 @@ disconnected(Ev, Other, #{ log := Log,
 
 connecting(From, stop, Data) -> 
     handle_stop(From, Data);
+
+connecting(From, reconnect, #{name := Name, 
+                              log :=Log }=Data) ->
+    Log({?MODULE, Name, connecting, reconnect, ignored}),
+    {keep_state, Data, [ok(From)]};
 
 connecting({timeout, connecting}, _, #{ name := Name}=Data) ->
     cmkit:warning({cmwsc, Name, connecting, timeout}),
@@ -96,6 +112,11 @@ connecting(Event, Msg, #{ log := Log,
 
 connected(From, stop, Data) -> 
     handle_stop(From, Data);
+
+connected(From, reconnect, #{name := Name, 
+                             log :=Log }=Data) ->
+    Log({?MODULE, Name, connected, reconnect, ignored}),
+    {keep_state, Data, [ok(From)]};
 
 connected(info, {gun_down, _, _, closed, _, _}, Data) ->
     apply_reconnection_strategy(connected, Data); 
@@ -147,6 +168,11 @@ upgrading(info, {gun_down, _, _, closed, _, _}, Data) ->
 upgrading(From, stop, Data) -> 
     handle_stop(From, Data);
 
+upgrading(From, reconnect, #{name := Name, 
+                             log :=Log }=Data) ->
+    Log({?MODULE, Name, upgrading, reconnect, ignored}),
+    {keep_state, Data, [ok(From)]};
+
 upgrading({call, _}, {out, Msg}, Data) ->
     Data2 = buffer(Msg, upgrading, Data),
     {keep_state, Data2};
@@ -162,7 +188,10 @@ upgrading(Event, Msg, #{ log := Log,
 
 ready({call, From}, {out, Msg}, Data) -> 
     ws_send(Msg, Data),
-    {keep_state, Data, ok(From)};
+    {keep_state, Data, [ok(From)]};
+
+ready(info, {gun_down, _, _, closed, _, _}, Data) ->
+    apply_reconnection_strategy(upgrading, Data); 
 
 ready(info, {gun_ws, _, _, {text, Raw}}, #{ log := Log,
                                             owner := Owner,
@@ -188,6 +217,10 @@ ready({timeout, connecting}, _, Data) ->
 ready(From, stop, Data) -> 
     handle_stop(From, Data);
 
+ready(From, reconnect, #{name := Name, 
+                         log :=Log }=Data) ->
+    Log({?MODULE, Name, ready, reconnect, ignored}),
+    {keep_state, Data, [ok(From)]};
 
 ready(Event, Msg, #{ log := Log,
                      name := Name,
@@ -195,8 +228,10 @@ ready(Event, Msg, #{ log := Log,
     Log({cmwsc, Name, ready, Config, ignored, Event, Msg}),
     {next_state, ready, Data}.
 
-handle_stop({call, From}, _) ->
-    {stop_and_reply, normal, ok(From)}.
+handle_stop({call, From}, #{name := Name,
+                            owner := Owner}) ->
+    Owner ! {ws, Name, down}, 
+    {stop_and_reply, normal, [ok(From)]}.
 
 terminate(Reason, _, #{ log := Log, name := Name, conn := Conn}) ->
     ok = gun:close(Conn),
@@ -232,7 +267,7 @@ connect(#{ config := #{ host := Host,
     Data#{ conn => Conn,
            monitor => MRef }.
 
-ok(From) -> [{reply, From, ok}].
+ok(From) -> {reply, From, ok}.
 
 buffer(Msg, State, #{ name := Name,
                       buffer := Buffer }=Data) ->
@@ -250,6 +285,7 @@ flush({{value, Msg}, Q}, #{ name := Name} = Data) ->
     flush(queue:out(Q), Data);
 
 flush({empty, Q}, _) -> Q.
+
 
 apply_reconnection_strategy(State, #{ log := Log, 
                                       owner := Owner,
