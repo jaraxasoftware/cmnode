@@ -1,0 +1,12 @@
+{application,cmstore,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmstore_app,[]}},
+              {applications,[kernel,stdlib,sqlite3,cmkit,cmconfig,cmcluster]},
+              {env,[]},
+              {modules,[cmstore,cmstore_app,cmstore_monitor,cmstore_sup,
+                        cmstore_test,cmstore_util]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

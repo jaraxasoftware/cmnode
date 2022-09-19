@@ -1,0 +1,11 @@
+{application,cmmetrics,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmmetrics_app,[]}},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {modules,[cmmetrics,cmmetrics_app,cmmetrics_sup]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

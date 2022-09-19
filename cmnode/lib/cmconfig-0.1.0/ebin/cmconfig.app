@@ -1,0 +1,13 @@
+{application,cmconfig,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmconfig_app,[]}},
+              {applications,[kernel,stdlib,cmeffect,cmkit]},
+              {env,[]},
+              {modules,[cmconfig,cmconfig_app,cmconfig_compiler,
+                        cmconfig_compiler_sup,cmconfig_sup,cmconfig_util,
+                        cmconfig_watcher]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

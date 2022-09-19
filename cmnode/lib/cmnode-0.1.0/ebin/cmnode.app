@@ -1,0 +1,12 @@
+{application,cmnode,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmnode_app,[]}},
+              {applications,[kernel,stdlib,cmkit,cmdb,cmconfig,cmelementary,
+                             cmcss]},
+              {env,[]},
+              {modules,[cmnode_app,cmnode_sup]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

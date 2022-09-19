@@ -1,0 +1,11 @@
+{application,cmtopic,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmtopic_app,[]}},
+              {applications,[kernel,stdlib,cmkit,cmconfig]},
+              {env,[]},
+              {modules,[cmtopic,cmtopic_app,cmtopic_sup,cmtopic_worker]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

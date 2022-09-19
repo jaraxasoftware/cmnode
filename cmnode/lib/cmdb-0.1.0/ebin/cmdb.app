@@ -1,0 +1,12 @@
+{application,cmdb,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmdb_app,[]}},
+              {applications,[kernel,stdlib,cbt,evc,cmkit,cmconfig,cmcluster]},
+              {env,[]},
+              {modules,[cmdb,cmdb_app,cmdb_sup,cmdb_test,cmdb_util,
+                        cmdb_writer]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

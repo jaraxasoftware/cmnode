@@ -1,0 +1,13 @@
+{application,slacker,
+             [{description,"Erlang Slack REST API wrapper"},
+              {vsn,"0.3"},
+              {modules,[slacker,slacker_api,slacker_auth,slacker_channel,
+                        slacker_chat,slacker_dnd,slacker_emoji,slacker_file,
+                        slacker_file_comment,slacker_group,slacker_im,
+                        slacker_mpim,slacker_pin,slacker_reaction,
+                        slacker_request,slacker_rich_messages,slacker_rtm,
+                        slacker_search,slacker_star,slacker_team,slacker_user,
+                        slacker_usergroup]},
+              {registered,[]},
+              {applications,[kernel,stdlib,inets,ssl,restc]},
+              {env,[]}]}.

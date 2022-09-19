@@ -1,0 +1,30 @@
+%% -*-erlang-*-
+%% vim:ft=erlang:
+
+{application, yamerl, [
+    {description,
+      "YAML 1.2 and JSON parser in pure Erlang"
+    },
+    {vsn, "0.7.0"},
+    {modules, []},
+    {registered, [yamerl_sup]},
+    {applications, [
+        kernel,
+        stdlib
+      ]},
+    {mod, {yamerl_app, []}},
+    {env, [
+        %% Configuration default values.
+        %% DO NOT EDIT: The final configuration is made in sys.config.
+        {node_mods, []}
+      ]},
+
+    %% Hex.pm package informations.
+    {maintainers, [
+        "Jean-Sebastien Pedron <jean-sebastien.pedron@dumbbell.fr>"
+      ]},
+    {licenses, ["BSD 2-Clause"]},
+    {links, [
+        {"GitHub", "https://github.com/yakaz/yamerl"}
+      ]}
+  ]}.

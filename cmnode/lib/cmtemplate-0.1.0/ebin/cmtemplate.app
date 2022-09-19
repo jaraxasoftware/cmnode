@@ -1,0 +1,12 @@
+{application,cmtemplate,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmtemplate_app,[]}},
+              {applications,[kernel,stdlib,cmconfig]},
+              {env,[]},
+              {modules,[cmtemplate,cmtemplate_app,cmtemplate_sup,
+                        cmtemplate_util]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.
