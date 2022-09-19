@@ -1,0 +1,11 @@
+.*
+examples
+charts
+config
+*.md
+schema
+Jenkinsfile
+!config/sys.config.src
+!config/erl_aflags.config
+!config/data.config
+!config/locales/*
