@@ -38,6 +38,10 @@ spec:
           resources: {}
         - name: build-erlang-develop
           resources: {}
+          script: |
+            #!/usr/bin/env sh
+            source .jx/variables.sh
+            rebar3 release
         - name: sonar-code-analisys
           resources: {}
         - name: check-registry

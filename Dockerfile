@@ -8,4 +8,5 @@ ENV RELX_REPLACE_OS_VARS true
 ENV CMNODE cmnode
 WORKDIR /opt/cmnode/
 ADD ./ .
-ENTRYPOINT ["./entrypoint.sh"]
+CMD ["/opt/cmnode/cmnode/bin/cmnode", "console"]
+
