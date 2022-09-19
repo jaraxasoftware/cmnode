@@ -1,0 +1,12 @@
+{application,cmcluster,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmcluster_app,[]}},
+              {applications,[kernel,stdlib,cmkit,cmconfig]},
+              {env,[]},
+              {modules,[cmcluster,cmcluster_app,cmcluster_sup,cmcluster_util,
+                        cmcluster_watcher]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

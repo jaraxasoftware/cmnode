@@ -1,0 +1,11 @@
+{application,restc,
+             [{description,"Erlang Rest Client"},
+              {vsn,"0.5.0"},
+              {applications,[kernel,stdlib,asn1,crypto,public_key,ssl,hackney,
+                             mochiweb_util]},
+              {env,[]},
+              {registered,[]},
+              {modules,[restc]},
+              {maintainers,["kivra"]},
+              {licenses,["MIT"]},
+              {links,[{"GitHub","https://github.com/kivra/restclient"}]}]}.

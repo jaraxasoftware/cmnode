@@ -1,0 +1,12 @@
+{application,cmservice,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmservice_app,[]}},
+              {applications,[kernel,stdlib,cmkit,cmdb,cmtopic,cmconfig]},
+              {env,[]},
+              {modules,[cmservice,cmservice_app,cmservice_sup,cmservice_util,
+                        cmservice_worker]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

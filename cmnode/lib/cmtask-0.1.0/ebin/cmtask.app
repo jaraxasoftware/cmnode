@@ -1,0 +1,13 @@
+{application,cmtask,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmtask_app,[]}},
+              {applications,[kernel,stdlib,cmconfig,cmkit,cmtest,cmtemplate,
+                             cmtopic]},
+              {env,[]},
+              {modules,[cmtask,cmtask_app,cmtask_sup,cmtask_util,
+                        cmtask_worker]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

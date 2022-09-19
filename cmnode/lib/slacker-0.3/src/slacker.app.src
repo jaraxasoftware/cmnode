@@ -1,0 +1,15 @@
+{application, slacker,
+ [
+  {description, "Erlang Slack REST API wrapper"},
+  {vsn, "0.3"},
+  {modules, []},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  inets,
+                  ssl,
+                  restc
+                 ]},
+  {env, []}
+ ]}.

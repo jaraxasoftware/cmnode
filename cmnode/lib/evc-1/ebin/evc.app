@@ -1,0 +1,7 @@
+{application,evc,
+             [{description,"An Erlang evc library"},
+              {vsn,"1"},
+              {modules,[evc]},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {env,[]}]}.

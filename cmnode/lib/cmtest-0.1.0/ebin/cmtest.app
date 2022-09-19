@@ -1,0 +1,13 @@
+{application,cmtest,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{cmtest_app,[]}},
+              {applications,[kernel,stdlib,cmqueue,cmdb]},
+              {env,[]},
+              {modules,[cmtest,cmtest_app,cmtest_runner,cmtest_runner_sup,
+                        cmtest_scenario,cmtest_scenario_sup,cmtest_sup,
+                        cmtest_util,cmtest_ws_sup]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.
