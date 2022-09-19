@@ -8,5 +8,5 @@ ENV RELX_REPLACE_OS_VARS true
 ENV CMNODE cmnode
 WORKDIR /opt/cmnode/
 ADD ./ .
-CMD ["/opt/cmnode/cmnode/bin/cmnode", "console"]
+CMD ["/opt/cmnode/_build/default/rel/cmnode/bin/cmnode", "console"]
 
