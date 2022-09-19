@@ -1,5 +1,5 @@
-FROM erlang:21.2.3
-MAINTAINER Pedro Gutiérrez <pedrogutierrez@mac.com>
+FROM erlang:21.3.8.11-slim
+LABEL org.opencontainers.image.source https://github.com/jaraxasoftware/cmnode
 RUN apt-get update; apt-get install -y libgd-dev libwebp-dev inotify-tools vim tree
 RUN mkdir -p /opt/cmnode/apps; mkdir ~/.ssh; ssh-keyscan github.com >> ~/.ssh/known_hosts
 ENV CMHOME /opt/cmnode
