@@ -21,7 +21,7 @@ spec:
           - name: SONAR_URL
             value: https://sonarqube-jx3.develop.jaraxa.systems
           - name: SONAR_EXCLUSIONS
-            value: ""          
+            value: "**/*.js,**/*.css,**/*.html,**/nkpdf/samples/*"
           image: uses:jaraxasoftware/jaraxa-pipeline-catalog/tasks/erlang-rebar/release.yaml@versionStream
           name: ""
           resources:
