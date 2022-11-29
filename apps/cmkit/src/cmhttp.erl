@@ -17,6 +17,9 @@
 -define(EMPTY_BODY, <<>>).
 -define(EMPTY_OPTS, #{}).
 -define(DEFAULT_MIME, <<"application/octect-stream">>).
+-define(CONNECT_TIMEOUT, 5).
+-define(TIMEOUT, 30).
+-define(MAX_TRIES, 3).
 
 
 stream(#{ method := Method,
@@ -49,17 +52,24 @@ stream(#{ method := Method,
           end,
 
     Recv = fun(Ev) ->
-                   case Map(Ev) of 
-                       ignore -> 
-                           cmkit:log({cmhttp, stream, ignored, Ev});
-                       Data ->
-                           spawn(M, F, [Data])
-                   end
-           end,
+                  case Map(Ev) of
+                      ignore ->
+                          cmkit:log({cmhttp, stream, ignored, Ev});
+                      Data ->
+                            spawn(M, F, [Data])
+                  end
+          end,
 
-    httpc:request(Method, {Url2, Headers2}, [], [{sync, false},
-                                                 {stream, self}, 
-                                                 {receiver, Recv}]);
+    %httpc:request(Method, {Url2, Headers2}, [], [{sync, false},
+    %                                             {stream, self},
+    %                                             {receiver, Recv}]);
+    io:format("[~p] 1.SENDING ~p to ~p~n", [calendar:universal_time(), Method, Url2]),
+    httpc:request(Method, {Url2, Headers2},
+        [{connect_timeout, timer:seconds(?CONNECT_TIMEOUT)},
+         {timeout, timer:seconds(?TIMEOUT)}],
+        [{sync, false},
+         {stream, self},
+         {receiver, Recv}]);
 
 stream(#{ method := _,
           url := _,
@@ -141,7 +151,12 @@ get(Url) ->
 get(Url, Headers) ->
     Url2 = encoded_url(Url),
     Headers2 = encoded_headers(Headers),
-    handle(httpc:request(get, {Url2, Headers2},[],[]), ?EMPTY_OPTS).
+    %handle(httpc:request(get, {Url2, Headers2},[],[]), ?EMPTY_OPTS).
+    io:format("[~p] 2.SENDING GET to ~p~n", [calendar:universal_time(), Url2]),
+    RetryFun = fun() ->
+        httpc:request(get, {Url2, Headers2},[{connect_timeout, timer:seconds(?CONNECT_TIMEOUT)}, {timeout, timer:seconds(?TIMEOUT)}],[])
+    end,
+    handle(RetryFun(), #{retries_left => ?MAX_TRIES, retry_fun => RetryFun}).
 
 delete(Url) ->
     delete(Url, #{}).
@@ -149,7 +164,13 @@ delete(Url) ->
 delete(Url, Headers) ->
     Url2 = encoded_url(Url),
     Headers2 = encoded_headers(Headers),
-    handle(httpc:request(delete, {Url2, Headers2},[],[]), ?EMPTY_OPTS).
+    %handle(httpc:request(delete, {Url2, Headers2},[],[]), ?EMPTY_OPTS).
+    io:format("[~p] 3.SENDING DELETE to ~p~n", [calendar:universal_time(), Url2]),
+    RetryFun = fun() ->
+        httpc:request(delete, {Url2, Headers2},[{connect_timeout, timer:seconds(?CONNECT_TIMEOUT)}, {timeout, timer:seconds(?TIMEOUT)}],[])
+    end,
+    handle(RetryFun(), #{retries_left => ?MAX_TRIES, retry_fun => RetryFun}).
+
 
 put(Url) ->
     cmhttp:put(Url, #{}).
@@ -185,7 +206,13 @@ send_body(Method, Url, #{ 'content-type' := CT }=Headers, Data, Opts) ->
     Mime = cmkit:to_list(CT),
     Encoded = encoded_body(Mime, Data),
     debug(Method, Url2, Headers2, Mime, Encoded, Opts),
-    handle(httpc:request(Method, { Url2, Headers2, Mime, Encoded},[],[]), Opts).
+    %handle(httpc:request(Method, { Url2, Headers2, Mime, Encoded},[],[]), Opts).
+    io:format("[~p] 4.SENDING ~p to ~p~n", [calendar:universal_time(), Method, Url2]),
+    RetryFun = fun() ->
+        httpc:request(Method, {Url2, Headers2, Mime, Encoded},[{connect_timeout, timer:seconds(?CONNECT_TIMEOUT)}, {timeout, timer:seconds(?TIMEOUT)}],[])
+    end,
+    handle(RetryFun(), Opts#{retries_left => ?MAX_TRIES, retry_fun => RetryFun}).
+
 
 debug(Method, Url, Headers, Mime, Encoded, #{ debug := true }) ->
     cmkit:log({http, #{ method => Method, 
@@ -199,12 +226,19 @@ debug(_, _, _, _, _, _) ->
 
 
 handle({error,socket_closed_remotely}, _) ->
+    io:format("[~p] ERROR: {socket_closed_remotely}~n", [calendar:universal_time()]),
     {error, closed};
 
-handle({error,{failed_connect, _}}, _) ->
+handle({error,{failed_connect, _A}}, #{retries_left := RetriesLeft, retry_fun := RetryFun}=Opts) when RetriesLeft > 0, is_function(RetryFun, 0) ->
+    io:format("[~p] ERROR: {failed_connect, ~p} ~p retries left~n", [calendar:universal_time(), _A, RetriesLeft]),
+    handle(RetryFun(), Opts#{retries_left => RetriesLeft-1});
+
+handle({error,{failed_connect, _A}}, _) ->
+    io:format("[~p] ERROR: {failed_connect, ~p}~n", [calendar:universal_time(), _A]),
     {error, failed_connect};
 
 handle({error,E}, _) ->
+    io:format("[~p] ERROR: {error, ~p}~n", [calendar:universal_time(), E]),
     {error, E};
 
 handle({ok, {{_, Code, _}, Headers, Body}}, Opts) ->
